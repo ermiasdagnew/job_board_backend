@@ -16,17 +16,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "password", "role"]
 
     def create(self, validated_data):
-        # Remove role before calling create_user
         role = validated_data.pop("role", "USER")
 
-        # Create user properly (hashes password)
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
         )
 
-        # Set role separately
         user.role = role
         user.save()
 
