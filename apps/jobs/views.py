@@ -2,18 +2,21 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Job, Category, Application, User
-from .serializers import (
-    JobSerializer,
-    CategorySerializer,
-    ApplicationSerializer,
-    RegisterSerializer,
-)
+from .serializers import JobSerializer, CategorySerializer, ApplicationSerializer, RegisterSerializer
 from .permissions import IsAdmin, IsUser
 
+# -------------------
+# User Registration
+# -------------------
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
+
+# -------------------
+# Jobs
+# -------------------
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -25,6 +28,10 @@ class JobViewSet(viewsets.ModelViewSet):
             return [IsAdmin()]
         return [AllowAny()]
 
+
+# -------------------
+# Categories
+# -------------------
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -34,6 +41,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return [IsAdmin()]
         return [AllowAny()]
 
+
+# -------------------
+# Applications
+# -------------------
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
