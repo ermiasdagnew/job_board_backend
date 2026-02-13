@@ -1,38 +1,61 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from .models import Category, Job, Application
 
-class User(AbstractUser):
-    ROLE_CHOICES = (
-        ("ADMIN", "Admin"),
-        ("USER", "User"),
-    )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+User = get_user_model()
 
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
 
-class Job(models.Model):
-    JOB_TYPES = (
-        ("FULL_TIME", "Full Time"),
-        ("PART_TIME", "Part Time"),
-        ("REMOTE", "Remote"),
-    )
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    company_name = models.CharField(max_length=255)
-    location = models.CharField(max_length=100, db_index=True)
-    job_type = models.CharField(max_length=20, choices=JOB_TYPES)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-class Application(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    resume_link = models.URLField()
-    cover_letter = models.TextField(blank=True)
-    applied_at = models.DateTimeField(auto_now_add=True)
+# ==========================
+# User Registration
+# ==========================
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
 
     class Meta:
-        unique_together = ("user", "job")
+        model = User
+        fields = ["id", "username", "email", "password", "role"]
+
+    def create(self, validated_data):
+        # Remove role before calling create_user
+        role = validated_data.pop("role", "USER")
+
+        # Create user properly (hashes password)
+        user = User.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+        )
+
+        # Set role separately
+        user.role = role
+        user.save()
+
+        return user
+
+
+# ==========================
+# Category
+# ==========================
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+# ==========================
+# Job
+# ==========================
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = "__all__"
+
+
+# ==========================
+# Application
+# ==========================
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = "__all__"
+        read_only_fields = ["user", "applied_at"]
