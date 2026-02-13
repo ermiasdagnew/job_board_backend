@@ -1,13 +1,7 @@
-from rest_framework.routers import DefaultRouter
-from django.urls import path, include
-from .views import JobViewSet, CategoryViewSet, ApplicationViewSet, RegisterView
-
-router = DefaultRouter()
-router.register("jobs", JobViewSet)
-router.register("categories", CategoryViewSet)
-router.register("applications", ApplicationViewSet)
+# apps/jobs/urls.py
+from django.urls import path
+from .views import JobListCreateView  # make sure this view exists
 
 urlpatterns = [
-    path("auth/register/", RegisterView.as_view()),
-    path("", include(router.urls)),
+    path("jobs/", JobListCreateView.as_view(), name="job-list-create"),
 ]
