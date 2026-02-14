@@ -2,8 +2,14 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Job, Category, Application, User
-from .serializers import JobSerializer, CategorySerializer, ApplicationSerializer, RegisterSerializer
+from .serializers import (
+    JobSerializer,
+    CategorySerializer,
+    ApplicationSerializer,
+    RegisterSerializer,
+)
 from .permissions import IsAdmin, IsUser
+
 
 # -------------------
 # User Registration
@@ -28,6 +34,9 @@ class JobViewSet(viewsets.ModelViewSet):
             return [IsAdmin()]
         return [AllowAny()]
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
 
 # -------------------
 # Categories
@@ -46,9 +55,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
 # Applications
 # -------------------
 class ApplicationViewSet(viewsets.ModelViewSet):
-    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [IsUser]
+
+    def get_queryset(self):
+        return Application.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
