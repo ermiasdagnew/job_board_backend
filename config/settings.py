@@ -8,9 +8,14 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-for-dev")
-DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+# Properly handle allowed hosts
+ALLOWED_HOSTS = [
+    host for host in os.environ.get("ALLOWED_HOSTS", "*").split(",")
+    if host
+]
 
 # --------------------------------------------------
 # APPLICATIONS
@@ -91,7 +96,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # --------------------------------------------------
-# CUSTOM USER MODEL  🚨 CRITICAL FIX
+# CUSTOM USER MODEL
 # --------------------------------------------------
 AUTH_USER_MODEL = "jobs.User"
 
@@ -100,7 +105,6 @@ AUTH_USER_MODEL = "jobs.User"
 # --------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # --------------------------------------------------
@@ -116,11 +120,24 @@ REST_FRAMEWORK = {
 }
 
 # --------------------------------------------------
-# SECURITY (Recommended for Render)
+# CSRF FIX (🚨 CRITICAL FIX FOR DJANGO 4+)
 # --------------------------------------------------
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in
+    os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin
+]
 
+# --------------------------------------------------
+# SECURITY (Render Safe)
+# --------------------------------------------------
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
