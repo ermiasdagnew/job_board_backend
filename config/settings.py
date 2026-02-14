@@ -13,14 +13,14 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # Properly handle allowed hosts
 ALLOWED_HOSTS = [
-    host for host in os.environ.get("ALLOWED_HOSTS", "*").split(",")
-    if host
+    host for host in os.environ.get("ALLOWED_HOSTS", "*").split(",") if host
 ]
 
 # --------------------------------------------------
 # APPLICATIONS
 # --------------------------------------------------
 INSTALLED_APPS = [
+    # Django built-in apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -28,14 +28,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Third-party
+    # Third-party apps
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_yasg",
     "django_filters",
     "whitenoise.runserver_nostatic",
 
-    # Local
+    # Local apps
     "apps.jobs",
 ]
 
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",  # Must come before auth
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -53,6 +53,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# --------------------------------------------------
+# ROOT & WSGI
+# --------------------------------------------------
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
@@ -62,7 +65,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"],  # Optional: add templates folder
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -120,12 +123,10 @@ REST_FRAMEWORK = {
 }
 
 # --------------------------------------------------
-# CSRF FIX (🚨 CRITICAL FIX FOR DJANGO 4+)
+# CSRF TRUSTED ORIGINS
 # --------------------------------------------------
 CSRF_TRUSTED_ORIGINS = [
-    origin for origin in
-    os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin
+    origin for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if origin
 ]
 
 # --------------------------------------------------
