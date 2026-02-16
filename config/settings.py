@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
 
     # Local apps
-    "apps.jobs",
+    "apps.jobs.apps.JobsConfig",  # <- use AppConfig class
 ]
 
 MIDDLEWARE = [
