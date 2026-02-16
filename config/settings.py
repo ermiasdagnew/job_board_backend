@@ -82,7 +82,12 @@ REST_FRAMEWORK = {
 }
 
 # Security settings
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS")
+if csrf_origins:
+    CSRF_TRUSTED_ORIGINS = csrf_origins.split(",")
+else:
+    CSRF_TRUSTED_ORIGINS = []
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
